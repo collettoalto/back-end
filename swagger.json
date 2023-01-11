@@ -1,0 +1,1509 @@
+{
+  
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0",
+      "title": "EcoAI API",
+      "description": "EcoAI API"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "tags":[ {
+      "name": "utente",
+      "description": "API per l'utente"
+    },
+    {
+      "name": "robot",
+      "description": "API per il robot"
+    },
+    {
+      "name": "organisation",
+      "description": "API per l'organizzazione"
+    },
+    {
+      "name": "piano pulizia",
+      "description": "API per gestire i piani di pulizia"
+    },
+    {
+      "name": "zona",
+      "description": "API per gestire le zone"
+    },
+    {
+      "name": "rifiuto",
+      "description": "API per i rifiuti"
+    }],
+    "schemes": ["http"],
+    "securityDefinitions": {
+      "jwt": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-access-token"
+      }
+    },
+    "paths": {
+      "/utente/signup": {
+          "post": {
+            "tags": ["utente"],
+            "summary": "Registrazione utente",
+            "description": "Registra un nuovo utente",
+            "parameters": [
+              {
+                "name": "user",
+                "in": "body",
+                "description": "Utente da registrare",
+                "required": true,
+                "schema": {
+                  "$ref": "#/bodies/signup_body"
+                }
+              }
+            ],
+            "responses": {
+              "201": {
+                "description": "User created successfully"
+              },
+              "400": {
+                "description": "Please, pass a username, password, email and phone number."
+              },
+              "409": {
+                "description": "Username already taken."
+              },
+              "500": {
+                "description": "Internal server error."
+              }
+            }
+          }
+
+      },
+      "/utente/login": {     
+        "post": {
+          "tags": ["utente"],
+          "summary": "login",
+          "description": "Effettua il login",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "body",
+              "description": "Utente da registrare",
+              "required": true,
+              "schema": {
+                "$ref": "#/bodies/login_body"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Enjoy your token!",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "token": {
+                        "type": "string"
+                      }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Please, pass a username, password."
+            },
+            "401": {
+              "description": "Authentication failed. Wrong password."
+            },
+            "404": {
+              "description": "User not found."
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/utente/logout": {
+        "get": {
+          "tags": ["utente"],
+          "summary": "Logout",
+          "description": "Effettua il logout",
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Logged out successfully"
+            },
+            "401": {
+              "description": "User not logged in"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/utente/organisations": {
+        "get": {
+          "tags": ["utente"],
+          "summary": "Restituisce le organizzazioni dell'utente",
+          "description": "Restituisce le organizzazioni a cui appartiene l'utente",
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description":"",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized."
+            },
+            "404": {
+              "description": "User not found."
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/utente/profile": {
+        "get": {
+          "tags": ["utente"],
+          "summary": "Profilo utente",
+          "description": "Restituisce le informazioni del profilo utente",
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/utente"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized."
+            },
+            "404": {
+              "description": "User not found."
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+          
+        }
+      },
+      "/robot": {
+        "post": {
+          "tags": ["robot"],
+          "summary": "Crea nuovo robot",
+          "description": "Crea un nuovo robot",
+          "parameters":[
+            {
+              "name": "robot",
+              "in": "body",
+              "description": "Utente da registrare",
+              "required": true,
+              "schema": {
+                "$ref": "#/bodies/newrobot_body"
+              } 
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "token": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "User not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        },
+        "put": {
+          "tags": ["robot"],
+          "summary": "Aggiorna parametri robot",
+          "description": "Aggiorna i parametri di un robot",
+          "parameters":[
+            {
+              "name": "robot",
+              "in": "body",
+              "description": "Utente da registrare",
+              "required": true,
+              "schema": {
+                "$ref": "#/bodies/updaterobot_body"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/robot"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "404": {
+              "description": "Robot not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/robot/{id}": {      
+        "get": {
+          "tags": ["robot"],
+          "summary": "Informazioni robot",
+          "description": "Restituisce le informazioni di robot dato il suo id",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID del robot",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/robot"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid id"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Robot not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/organisation": {
+        "post": {
+          "tags": ["organisation"],
+          "summary": "Crea nuova organizzazione",
+          "description": "Crea una nuova organizzazione",
+          "parameters":[
+            {
+              "name": "organizzazione",
+              "in": "body",
+              "description": "organizzazione da creare",
+              "required": true,
+              "schema": {
+                "$ref": "#/bodies/ciao_body"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Organisation created",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/organisation"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "409": {
+              "description": "Organisation already exists"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/organisation/{name}": {
+        "delete": {
+          "tags": ["organisation"],
+          "summary": "Elimina organizzazione",
+          "description": "Elimina un'organizzazione",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "path",
+              "description": "Nome dell'organizzazione",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Organisation deleted"
+            },
+            "404": {
+              "description": "Organisation not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/organisation/{name}/info": {
+        "get": {
+          "tags": ["organisation"],
+          "summary": "Informazioni organizzazione",
+          "description": "Restituisce le informazioni di un'organizzazione dato il suo nome",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "path",
+              "description": "Nome dell'organizzazione",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/organisation"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Organisation not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/organisation/{name}/robots": {
+        "get": {
+          "tags": ["organisation"],
+          "summary": "Robot di un'organizzazione",
+          "description": "Restituisce i robot posseduti da un'organizzazione dato il suo nome",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "path",
+              "description": "Nome dell'organizzazione",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/robot"
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Organisation not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        },
+        "patch": {
+          "tags": ["organisation"],
+          "summary": "Associa robot ad organizzazione",
+          "description": "Associa un robot ad un'organizzazione dato il nome dell'organizzazione",
+          "parameters": [
+            {
+              "name": "name",
+              "in": "path",
+              "description": "Nome dell'organizzazione",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "id_robot",
+              "in": "query",
+              "description": "Id del robot",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Robot added to organisation"
+            },
+            "400": {
+              "description": "Bad Request: Missing parameters"
+            },
+            "404": {
+              "description": "Organisation not found"
+            },
+            "409": {
+              "description": "Robot already in organisation"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/piano_pulizia": {
+        "post": {
+          "tags": ["piano pulizia"],
+          "summary": "Crea piano pulizia",
+          "description": "Crea un nuovo piano di pulizia",
+          "parameters": [
+            {
+              "name": "plan",
+              "in": "body",
+              "description": "Piano di pulizia da creare",
+              "required": true,
+              "schema": {
+                "$ref": "#/bodies/piano_pulizia_body"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Piano di pulizia creato",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/piano_pulizia"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        },
+        "patch": {
+          "tags": ["piano pulizia"],
+          "summary": "Assegna piano pulizia",
+          "description": "Assegna un piano di pulizia ad un robot",
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Piano di pulizia assegnato"
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "404": {
+              "description": "Robot or plan not found"
+            },
+            "409": {
+              "description": "Plan already assigned to a robot"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/piano_pulizia/list": {
+        "get": {
+          "tags": ["piano pulizia"],
+          "summary": "Lista piani pulizia",
+          "description": "Restituisce la lista dei piani di pulizia",
+          "parameters": [
+            {
+              "name": "nome_org",
+              "in": "query",
+              "description": "Nome dell'organizzazione",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/piano_pulizia"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "404": {
+              "description": "Organisation not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/piano_pulizia/robot": {
+        "get": {
+          "tags": ["piano pulizia"],
+          "summary": "Info piano pulizia (robot)",
+          "description": "Restituisce le informazioni del piano di pulizia associato ad un robot, viene effetuata da un robot",
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/piano_pulizia"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "404": {
+              "description": "Plan not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/piano_pulizia/organization/{id}": {
+        "get": {
+          "tags": ["piano pulizia"],
+          "summary": "Info piano pulizia (organizzazione)",
+          "description": "Restituisce le informazioni del piano di pulizia associato ad un robot, viene effetuata da un'utente",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Id del piano di pulizia",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/piano_pulizia"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request: missing parameters"
+            },
+            "404": {
+              "description": "Plan not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/zone": {
+        "post": {
+          "tags": ["zona"],
+          "summary": "Crea zona",
+          "description": "Crea una nuova zona",
+          "parameters": [
+            {
+              "name": "zona",
+              "in": "body",
+              "description": "Zona da creare",
+              "required": true,
+              "schema": {
+                "$ref": "#/bodies/zona_body"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "201": {
+              "description": "Zone created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/definitions/zona"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/zone/position/{id}": {
+        "get": {
+          "tags": ["zona"],
+          "summary": "Posizione zona",
+          "description": "Restituisce la posizione di una zona",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Id della zona",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Zone position retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/response/regione"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "404": {
+              "description": "Zone not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        }
+      },
+      "/zone/containers/{id}": {
+        "get": {
+          "tags": ["zona"],
+          "summary": "Contenitori zona",
+          "description": "Restituisce i contenitori di rifiuti di una zona",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Id della zona",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "security": [
+            {
+              "jwt": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Zone containers retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                      "$ref": "#/response/regione"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing parameters"
+            },
+            "404": {
+              "description": "Zone not found"
+            },
+            "500": {
+              "description": "Internal server error."
+            }
+          }
+        },
+        "/rifiuto": {
+          "post": {
+            "tags": ["rifiuto"],
+            "summary": "Riconosci rifiuto",
+            "description": "Riconosce il rifiuto in base alla foto",
+            "parameters": [
+              {
+                "name": "rifiuto",
+                "in": "body",
+                "description": "Rifiuto da riconoscere",
+                "required": true,
+                "schema": {
+                  "$ref": "#/bodies/rifiuto_body"
+                }
+              }
+            ],
+            "security": [
+              {
+                "jwt": []
+              }
+            ],
+            "responses": {
+              "201": {
+                "description": "",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/definitions/rifiuto"
+                    }
+                  }
+                }
+              },
+              "400": {
+                "description": "Bad request, missing parameters"
+              },
+              "500": {
+                "description": "Internal server error."
+              }
+            }
+          }
+        },
+        "/rifiuto/{id}": {
+          "delete": {
+            "tags": ["rifiuto"],
+            "summary": "Elimina rifiuto",
+            "description": "Elimina un rifiuto",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "description": "Id del rifiuto",
+                "required": true,
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            ],
+            "security": [
+              {
+                "jwt": []
+              }
+            ],
+            "responses": {
+              "204": {
+                "description": "Rifiuto deleted successfully"
+              },
+              "404": {
+                "description": "Rifiuto not found"
+              },
+              "500": {
+                "description": "Internal server error."
+              }
+            }
+          },
+          "patch": {
+            "tags": ["rifiuto"],
+            "summary": "Classifica rifiuto",
+            "description": "Classifica un rifiuto",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "description": "Id del rifiuto",
+                "required": true,
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              },
+              {
+                "name": "classificazione",
+                "in": "body",
+                "description": "Classificazione del rifiuto",
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "enum": ["plastica", "carta", "vetro", "organico", "umido", "secco", "indifferenziato", "Non riconosciuto"]
+                }
+              }
+            ],
+            "security": [
+              {
+                "jwt": []
+              }
+            ],
+            "responses": {
+              "204": {
+                "description": ""
+              },
+              "404": {
+                "description": "Rifiuto not found"
+              },
+              "500": {
+                "description": "Internal server error."
+              }
+            }
+          }
+        },
+        "/rifiuto/info/{id}": {
+          "get": {
+            "tags": ["rifiuto"],
+            "summary": "Info rifiuto",
+            "description": "Restituisce le informazioni di un rifiuto",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "description": "Id del rifiuto",
+                "required": true,
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            ],
+            "security": [
+              {
+                "jwt": []
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Rifiuto info retrieved successfully",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/definitions/rifiuto"
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "Rifiuto not found"
+              },
+              "500": {
+                "description": "Internal server error."
+              }
+            }
+          }
+        },
+        "/rifiuto/tocollect": {
+          "get": {
+            "tags": ["rifiuto"],
+            "summary": "Rifiuti da raccogliere",
+            "description": "Restituisce i rifiuti da raccogliere",
+            "security": [
+              {
+                "jwt": []
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Rifiuti da raccogliere retrieved successfully",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/rifiuto"
+                      }
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "Rifiuto not found"
+              },
+              "500": {
+                "description": "Internal server error."
+              }
+            }
+          }
+        },
+        "/rifiuto/toclassify": {
+          "get": {
+            "tags": ["rifiuto"],
+            "summary": "Rifiuti da classificare",
+            "description": "Restituisce i rifiuti da classificare (non riconosciuti)",
+            "parameters": {
+              "in": "query",
+              "name": "id_zona",
+              "description": "ID della zona di cui si vogliono i rifiuti da classificare",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "security": [
+              {
+                "jwt": []
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Rifiuti da classificare retrieved successfully",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/rifiuto"
+                      }
+                    }
+                  }
+                }
+              },
+              "404": {
+                "description": "Rifiuto not found"
+              },
+              "500": {
+                "description": "Internal server error."
+              }
+            }
+          }
+        }
+    },
+    "definitions": {
+      "utente": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "numero_tel": {
+            "type": "string"
+          },
+          "hash_password": {
+            "type": "string"
+          },
+          "ruolo": {
+            "type": "string"
+          },
+          "nomi_organizzazioni": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "robot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "capienza_attuale": {
+            "type": "integer"
+          },
+          "temperatura": {
+            "type": "string"
+          },
+          "batteria": {
+            "type": "string"
+          },
+          "posizione": {
+            "type": "object",
+            "properties": {
+              "LAT": {
+                "type": "integer"
+              },
+              "LON": {
+                "type": "integer"
+              },
+              "ALT": {
+                "type": "integer"
+              }
+            }
+
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "nome_organizzazione": {
+            "type": "string"
+          }
+        }
+      },
+      "organisation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string",
+            "required":true
+          },
+          "employee_num": {
+            "type": "string"
+          }
+        }
+      },
+      "piano_pulizia": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id_zona": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "data_inizio": {
+            "type": "string",
+            "format": "date"
+          },
+          "data_fine": {
+            "type": "string",
+            "format": "date"
+          },
+          "ID_robot": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome_organizzazione": {
+            "type": "string"
+          }
+        }
+      },
+      "zona": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "regione": {
+            "type": "array",
+            "items":{
+              "type": "object",
+              "properties": {
+                "LAT": {
+                  "type": "integer"
+                },
+                "LON": {
+                  "type": "integer"
+                },
+                "ALT": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "contenitori_rifiuti": {
+            "type": "array",
+            "items":{
+              "type": "object",
+              "properties": {
+                "tipologia":{
+                  "type":"string"
+                },
+                "posizione":{
+                  "type":"object",
+                  "properties":{
+                    "LAT": {
+                      "type": "integer"
+                    },
+                    "LON": {
+                      "type": "integer"
+                    },
+                    "ALT": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "rifiuto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "URL_foto": {
+            "type": "string"
+          },
+          "posizione": {
+            "type":"object",
+            "properties":{
+              "LAT": {
+                "type": "integer"
+              },
+              "LON": {
+                "type": "integer"
+              },
+              "ALT": {
+                "type": "integer"
+              }
+            }
+          },
+          "classificazione": {
+            "type": "string"
+          },
+          "id_zona": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "bodies":{
+      "signup_body": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "numero_tel": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "login_body": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "newrobot_body": {
+        "type": "object",
+        "properties": {
+          "capienza_attuale": {
+            "type": "integer"
+          }
+        }
+      },
+      "updaterobot_body": {
+        "type": "object",
+        "properties": {
+          "capienza_attuale": {
+            "type": "integer"
+          },
+          "temperatura": {
+            "type": "string"
+          },
+          "batteria": {
+            "type": "string"
+          },
+          "posizione": {
+            "type": "object",
+            "properties": {
+              "LAT": {
+                "type": "integer"
+              },
+              "LON": {
+                "type": "integer"
+              },
+              "ALT": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "ciao_body":{
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "required":true
+          },
+          "employee_num": {
+            "type": "string"
+          }
+        }
+      },
+      "piano_pulizia_body": {
+        "type": "object",
+        "properties": {
+          "id_zona": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "data_inizio": {
+            "type": "string",
+            "format": "date"
+          },
+          "data_fine": {
+            "type": "string",
+            "format": "date"
+          },
+          "nome_organizzazione": {
+            "type": "string"
+          }
+        }
+      },
+      "zona_body": {
+        "type": "object",
+        "properties": {
+          "regione": {
+            "type": "array",
+            "items":{
+              "type": "object",
+              "properties": {
+                "LAT": {
+                  "type": "integer"
+                },
+                "LON": {
+                  "type": "integer"
+                },
+                "ALT": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "contenitori_rifiuti": {
+            "type": "array",
+            "items":{
+              "type": "object",
+              "properties": {
+                "tipologia":{
+                  "type":"string"
+                },
+                "posizione":{
+                  "type":"object",
+                  "properties":{
+                    "LAT": {
+                      "type": "integer"
+                    },
+                    "LON": {
+                      "type": "integer"
+                    },
+                    "ALT": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "rifiuto_body": {
+        "type": "object",
+        "properties": {
+          "URL_foto": {
+            "type": "string"
+          },
+          "posizione": {
+            "type":"object",
+            "properties":{
+              "LAT": {
+                "type": "integer"
+              },
+              "LON": {
+                "type": "integer"
+              },
+              "ALT": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "response":{
+      "regione": {
+        "type": "array",
+        "items":{
+          "type": "object",
+          "properties": {
+            "LAT": {
+              "type": "integer"
+            },
+            "LON": {
+              "type": "integer"
+            },
+            "ALT": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }
